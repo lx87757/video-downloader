@@ -1,0 +1,26 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 检出仓库代码
+        uses: actions/checkout@v3
+
+      - name: 使用 Buildozer 编译 APK
+        uses: Artemis-Skade/buildozer-action@v1
+        with:
+          command: buildozer -s android debug
+          subfolder: .
+
+      - name: 上传打包好的 APK 产物
+        uses: actions/upload-artifact@v3
+        with:
+          name: VideoDownloader-APK
+          path: bin/*.apk
