@@ -3,24 +3,33 @@ name: Build Android APK
 on:
   push:
     branches: [ main, master ]
-  workflow_dispatch:  # 支持手动点击按钮触发打包
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 检出仓库代码
-        uses: actions/checkout@v3
+      - name: 检出代码
+        uses: actions/checkout@v4
 
-      - name: 使用 Buildozer 编译 APK
-        uses: Artemis-Skade/buildozer-action@v1
+      - name: 设置 Python 环境
+        uses: actions/setup-python@v5
         with:
-          command: buildozer -s android debug
-          subfolder: .
+          python-version: '3.10'
 
-      - name: 上传打包好的 APK 产物
-        uses: actions/upload-artifact@v3
+      - name: 安装 Buildozer 依赖
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
+          pip install --upgrade buildozer cython
+
+      - name: 使用 Buildozer 打包 APK
+        run: |
+          buildozer -s android debug
+
+      - name: 上传 APK 安装包
+        uses: actions/upload-artifact@v4
         with:
           name: VideoDownloader-APK
           path: bin/*.apk
